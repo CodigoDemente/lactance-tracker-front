@@ -1,0 +1,10 @@
+<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="url(#linear)"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-baby-bottle">
+<defs>
+<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#c05cee"/>
+<stop offset="100%" stop-color="#707ce9"/>
+</linearGradient>
+</defs>
+<path stroke="none" d="M0 0h24v24H0z" fill="white"/><path stroke="#707ce9" d="M5 10h14"/>
+<path d="M12 2v2" stroke="#c05cee"/><path d="M12 4a5 5 0 0 1 5 5v11a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2v-11a5 5 0 0 1 5 -5z" />
+</svg>
