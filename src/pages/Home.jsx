@@ -8,17 +8,8 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import { colors } from '../styles/colors';
 import UserContext from '../hooks/UserContext';
-
-const childs = [
-  {
-    name: 'Alex',
-    id: 1,
-  },
-  {
-    name: 'Eva',
-    id: 2,
-  }
-]
+import Paragraph from '../components/Paragraph';
+import Cookies from 'js-cookie';
 
 
 const Home = () => {
@@ -26,20 +17,69 @@ const Home = () => {
   const [tab, setTab] = useState(0);
   const [edit, setEdit] = useState(false);
   const [submittedForm, setSubmittedForm] = useState(false);
+  const [errorAPICall, setErrorAPICall] = useState(false);
+  const [childs, setChilds] = useState(null);
+  
+  const token = Cookies.get('token')
 
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate('/login');
-  //   }
-  // }, [user, navigate]);
+  const getChilds = async () => {
+    const settings = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ token }`
+            },
+        };
+        try {
+            const response = await fetch(`https://lactance-tracker-back-dev-frat.2.ie-1.fl0.io/parents/${user}/childs`, settings)
+          if (response.status === 200) {
+            const body = await response.json();
+            setChilds(body)
+            }
+        } catch (e) {
+            setErrorAPICall(true)
+            return e;
+        }
+  }
+  
+  const postMeal = async (type) => {
+    const settings = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        type: type
+      })
+    };
+    try {
+      const response = await fetch(`https://lactance-tracker-back-dev-frat.2.ie-1.fl0.io/childs/${childs[tab].id}/meals`, settings)
+      if (response.status === 201) {
+        setSubmittedForm(true)
+      }
+    } catch (e) {
+      setErrorAPICall(true)
+      return e;
+    }
+  }
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    } else {
+      getChilds();
+    }
+  }, [user, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(e.target.name);
-     setSubmittedForm(true)
+    postMeal(e.target.name);
   }
 
   const registerManually = (e) => {
@@ -52,9 +92,15 @@ const Home = () => {
     setTab(e.target.name);
     setSubmittedForm(false);
   }
+  if (!childs) {
+    return <div>Loading...</div>
+  }
   return (
     <PageContainer>
-      <FlexContainer>
+      { errorAPICall && 
+                <Paragraph size='s' color='red'>Something went wrong with your login!</Paragraph>
+                }
+         <FlexContainer>
         {childs.map((child, i) => {
         return (
           <Tab
@@ -74,22 +120,20 @@ const Home = () => {
           </CheckContainer>
       {childs[tab] && (
         <FlexContainer $gap={'40px'} $col>
-          <StyledLink to={`/child/${childs[tab].id}`}>
+          <StyledLink to={`${user}/child/${childs[tab].id}`}>
             {childs[tab].name}
           </StyledLink>
           <FlexContainer $col>
             <Button
-              size="small"
               primary
-              name="tits"
+              name="breast"
              onClick={handleSubmit}
             >
              🤱 Tits
             </Button>
             <Button
-              size="small"
               secondary
-              name="bibs"
+              name="bottle"
              onClick={handleSubmit}
             >
                🍼 Bibs
@@ -136,7 +180,9 @@ const PageContainer = styled.div`
     padding-top: 40px;
  `;
 
+
 const FlexContainer = styled.div`
+    width: 100%;
     display: flex;
     flex-direction: ${props => props.$col ? 'column' : 'row'};
     align-items: center;
@@ -154,10 +200,10 @@ const CheckContainer = styled.div`
 const Tab = styled.button`
     background-color: ${props => props.$primary ? colors.primary : colors.white};
     color: ${props => props.$secondary ? colors.primary : colors.white};
+    width: 100%;
     font-size: 16px;
     text-decoration: none;
     font-weight: 600;
-    min-width: 100px;
     padding: 6px;
     border-radius: 2px;
     border: 2px solid ${colors.primary};
@@ -171,7 +217,6 @@ const Tab = styled.button`
     font-size:  28px;
     text-decoration: none;
     font-weight: 600;
-    width: 20%;
     &:hover {
         text-decoration: underline;
     }

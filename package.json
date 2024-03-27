@@ -9,6 +9,8 @@
     "@babel/plugin-transform-numeric-separator": "^7.24.1",
     "@babel/plugin-transform-optional-chaining": "^7.24.1",
     "@babel/plugin-transform-private-methods": "^7.24.1",
+    "buffer": "^6.0.3",
+    "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",

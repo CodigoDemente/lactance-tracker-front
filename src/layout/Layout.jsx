@@ -28,6 +28,10 @@ const StyledLogo = styled.img`
     height: 50px;
 `;
 
+const StyledContainer = styled.div`
+ padding-inline: 20%;
+`
+
 const Layout = () => {
     return (
         <>
@@ -36,7 +40,10 @@ const Layout = () => {
                     <StyledLogo src={brand} alt="logo" />
                 </Link>
             </StyledHeader>
-            <Outlet />
+            <StyledContainer>
+                <Outlet />
+            </StyledContainer>
+            
         </>
     );
 }

@@ -19,7 +19,7 @@ const StyledButton = styled.button`
     text-decoration: none;
     font-weight: 600;
     padding: 14px;
-    width: ${props => props.$size === 'small' ? '200px' : '100%'};
+    width: 100%;
     text-align: center;
     border: 2px solid ${colors.primary};
     border-radius: 30px;
@@ -32,13 +32,11 @@ const StyledButton = styled.button`
     @media ${device.md} {
         font-size: 18px;
         padding: 10px;
-        width: ${props => props.$size === 'small' ? '200px' : '100%'};
     }
 
     @media ${device.lg} {
         font-size: 16px;
         padding: 10px;
-        width: ${props => props.$size === 'small' ? '200px' : '100%'};
     }
 `;
 

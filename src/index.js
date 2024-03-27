@@ -23,7 +23,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="form-general" element={<Form />} />
-            <Route path="child/:id" element={<List />} />
+            <Route path=":userId/child/:childId" element={<List />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>

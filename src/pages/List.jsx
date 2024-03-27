@@ -4,39 +4,15 @@ import { colors } from '../styles/colors';
 import Paragraph from '../components/Paragraph';
 import { device } from '../styles/breakpoints';
 import { useParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-let data = [
-  {
-    meal: 'tits',
-    time: '15:04'
-  },
-  {
-    meal: 'bibs',
-    time: '13:09'
-  },
-  {
-    meal: 'tits',
-    time: '15:04'
-  },
-  {
-    meal: 'bibs',
-    time: '13:09'
-  },
-  {
-    meal: 'tits',
-    time: '15:04'
-  },
-  {
-    meal: 'bibs',
-    time: '13:09'
-  },
-];
 
 const List = () => {
 
-  const { id } = useParams();
-  console.log(id, 'ID');
+  const { childId } = useParams();
+  const [data, setData] = useState();
   const [sortOrder, setSortOrder] = useState('asc');
+  const token = Cookies.get('token')
 
   const handleSort = () => {
     data = data.sort((a, b) => {
@@ -48,18 +24,26 @@ const List = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-    // useEffect(() => {
-    //   const fetchData = async () => {
-    //     const response = await fetch(`https://api.ubervo.es/child/${childId}/meals`);
-    //     const newData = await response.json();
-    //     setData(newData);
-    //   };
+    useEffect(() => {
+      const fetchData = async () => {
+        const settings = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ token }`
+            },
+        };
+        const response = await fetch(`https://lactance-tracker-back-dev-frat.2.ie-1.fl0.io/childs/${childId}/meals`, settings);
+        const body = await response.json();
+        setData(body);
+      };
   
-    //   fetchData();
-  // }, []);
+      fetchData();
+  }, []);
     
 const renderTable = () => {
-    if (data) {
+    if (data && data.length) {
       return (
         <Table>
           <thead>
@@ -71,8 +55,8 @@ const renderTable = () => {
           <tbody>
             {data.map((item, i) => 
               <tr key={i}>
-                <TableCell>{item.meal}</TableCell>
-                <TableCell>{item.time}</TableCell>
+                <TableCell>{item.type}</TableCell>
+                <TableCell>{item.date}</TableCell>
               </tr>)
             }
           </tbody>
