@@ -16,8 +16,8 @@ const List = () => {
 
   const handleSort = () => {
     data = data.sort((a, b) => {
-      const timeA = new Date(`1970/01/01 ${a.time}`);
-      const timeB = new Date(`1970/01/01 ${b.time}`);
+      const timeA = new Date(a.date);
+      const timeB = new Date(b.date);
       return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
     });
 

@@ -6,7 +6,6 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import Layout from './layout/Layout';
 import Home from './pages/Home';
-import Form from './pages/Form';
 import NoPage from './pages/NoPage';
 import List from './pages/List';
 import Login from './pages/Login';
@@ -22,7 +21,6 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
-            <Route path="form-general" element={<Form />} />
             <Route path=":userId/child/:childId" element={<List />} />
             <Route path="*" element={<NoPage />} />
           </Route>

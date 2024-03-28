@@ -1,20 +1,15 @@
 import React, { useContext, useState } from 'react';
-import { Buffer } from 'buffer';
 import UserContext from '../hooks/UserContext';
 import { useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import Submit from '../components/Submit';
 import Paragraph from '../components/Paragraph';
-import { JwtParser } from '../utils/JwtParser';
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
 import Cookies from 'js-cookie';
+import { parseToken } from '../utils/parserToken';
 
-export const parseToken = (token) => {
-    const payload = token.split('.')[1];
-    const decoded = Buffer.from(payload, 'base64').toString('ascii');
-    return JSON.parse(decoded);
-};
+
 
 function Login() {
     const [errorAPICall, setErrorAPICall] = useState(false);
