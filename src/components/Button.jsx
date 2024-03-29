@@ -1,12 +1,11 @@
 import React from 'react';
-import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
 import { device } from '../styles/breakpoints';
 
-const Button = ({ children, primary, secondary, size, onClick, ...props }) => {
+const Button = ({ children, primary, secondary, onClick, ...props }) => {
     return (
-        <StyledButton {...props} onClick={onClick} $size={size} $primary={primary} $secondary={secondary}>
+        <StyledButton {...props} onClick={onClick} $primary={primary} $secondary={secondary}>
             {children}
         </StyledButton>
     );
