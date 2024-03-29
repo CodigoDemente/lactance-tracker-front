@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import './index.css';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
@@ -11,11 +11,12 @@ import List from './pages/List';
 import Login from './pages/Login';
 import UserContext from './hooks/UserContext';
 
+
 function App() {
-  const [user, setUser] = useState(null);
+  const [userId, setUser] = useState(null);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ userId, setUser }}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
