@@ -1,6 +1,6 @@
 {
-  "short_name": "Urbevo",
-  "name": "Urbevo",
+  "short_name": "Lactance tracker",
+  "name": "Lactance tracker",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#FF7D54",
+  "theme_color": "#707ce9",
   "background_color": "#ffffff"
 }
