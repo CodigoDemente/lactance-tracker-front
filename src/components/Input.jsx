@@ -18,7 +18,6 @@ const Input = ({ label, maxLength, minLength, name, required, placeholder, size 
 }
 
 const StyledInput = styled.div`
-    width: 100%;
    display: flex;
     flex-direction: column;
 `;

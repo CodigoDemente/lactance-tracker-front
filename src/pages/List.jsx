@@ -1,72 +1,124 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
 import Paragraph from '../components/Paragraph';
 import { device } from '../styles/breakpoints';
 import { useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { delete_meal, get_meals } from '../api/childs';
+import Error from '../containers/Error';
+import { getLocalIsoString } from '../utils/parserTime';
 
 
 const List = () => {
 
   const { childId } = useParams();
   const [data, setData] = useState();
-  const [sortOrder, setSortOrder] = useState('asc');
-  const token = Cookies.get('token')
+  const [loading, setLoading] = useState(false);
+  const [errorAPICall, setErrorAPICall] = useState(false);
 
-  const handleSort = () => {
-    data = data.sort((a, b) => {
-      const timeA = new Date(a.date);
-      const timeB = new Date(b.date);
-      return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
-    });
+const handleSort = (data) => {
+  const sortedData = data.sort((a, b) => {
+    const timeA = getLocalIsoString(a.date);
+    const timeB = getLocalIsoString(b.date);
+    return timeB - timeA;
+  });
 
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
+  const groupedData = sortedData.reduce((acc, item) => {
+    const date = getLocalIsoString(item.date).split('T')[0];
+    const time = getLocalIsoString(item.date).split('T')[1].slice(0, 5);
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push({ ...item, date: time });
+    return acc;
+  }, {});
 
-    useEffect(() => {
-      const fetchData = async () => {
-        const settings = {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${ token }`
-            },
-        };
-        const response = await fetch(`https://lactance-tracker-back-dev-frat.2.ie-1.fl0.io/childs/${childId}/meals`, settings);
-        const body = await response.json();
-        setData(body);
-      };
-  
-      fetchData();
+  return groupedData;
+};
+
+  const apiGetMeals = useCallback(async () => {
+    setLoading(true)
+    const response = await get_meals(childId);
+    if (response) {
+      setData(handleSort(response));
+      setErrorAPICall(false);
+      setLoading(false)
+    }
+    else {
+      setErrorAPICall('Something went wrong when getting your data!')
+      setLoading(false)
+    }
+  }, [childId]);
+
+   const apiDeleteMeal = useCallback(async (id) => {
+    setLoading(true)
+    const response = await delete_meal(childId, id);
+     if (response) {
+      apiGetMeals();
+      setErrorAPICall(false);
+      setLoading(false)
+    }
+    else {
+      setErrorAPICall('Something went wrong when getting your data!')
+      setLoading(false)
+    }
+  }, [childId]);
+
+  useEffect(() => {
+      apiGetMeals();
   }, []);
     
 const renderTable = () => {
-    if (data && data.length) {
+    if (data) {
       return (
-        <Table>
+        <div>
+          {Object.entries(data).map(([key, value]) => ( 
+            <div>
+            <p>{new Date(key).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}</p>
+              <Table>
           <thead>
             <tr>
               <TableHeader>Meal</TableHeader>
-              <TableHeader onClick={handleSort}>Time</TableHeader>
+              <TableHeader>Time</TableHeader>
+              <TableHeader>Actions</TableHeader>
             </tr>
           </thead>
           <tbody>
-            {data.map((item, i) => 
+            {value.map((item, i) => 
               <tr key={i}>
                 <TableCell>{item.type}</TableCell>
                 <TableCell>{item.date}</TableCell>
+                <TableCell>
+                  <button onClick={()=> apiDeleteMeal(item.id)}>
+                    delete
+                  </button>
+                </TableCell>
               </tr>)
             }
+
           </tbody>
-        </Table>
+              </Table>
+            </div>
+          ))
+          }
+          </div>
       );
     }
   };
-     
- 
+   
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
+  if (errorAPICall) {
+    return (
+      <Error
+        errorMessage={errorAPICall}
+      />
+    )
+  }
+ 
   return (
     <TableContainer>
       {renderTable()}
