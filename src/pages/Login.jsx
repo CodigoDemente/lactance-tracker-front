@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import UserContext from '../hooks/UserContext';
 import { useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { colors } from '../styles/colors';
 import Cookies from 'js-cookie';
 import { parseToken } from '../utils/parserToken';
+import { get_token } from '../api/childs';
 
 
 
@@ -17,39 +18,23 @@ function Login() {
     const navigate = useNavigate();
     
 
-    const handleSubmit = async (e) => {
-        
-        e.preventDefault();
-
-        const formData = new FormData(e.target);
-
-        const { username, password } = Object.fromEntries(formData.entries());
- 
-        const settings = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(
-            {
-                username, 
-                password
-            })
-        };
-        try {
-            const response = await fetch(`https://lactance-tracker-back-dev-frat.2.ie-1.fl0.io/auth/login`, settings)
-            if (response.status === 201) {
-                const { access_token } = await response.json();
-                const token = parseToken(access_token)
-                Cookies.set('token', access_token, { expires: 7, secure: true });
-                setUser(token.sub);
-                navigate('/')
-            }
-        } catch (e) {
-            setErrorAPICall(true)
-            return e;
+    const apiGetToken= useCallback(async (username, password) => {
+        const response = await get_token(username, password);
+        if (response) {
+          const token = parseToken(response)
+            setUser(token.sub);
+            navigate('/')
         }
+        else {
+          setErrorAPICall(true)
+        }
+    }, [setUser, navigate]);
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const { username, password } = Object.fromEntries(formData.entries());
+        return apiGetToken(username, password);
     }
 
     return (
