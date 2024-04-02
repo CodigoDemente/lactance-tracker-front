@@ -102,7 +102,6 @@ const List = () => {
         <Table
           body={body}
           headers={['Meals', 'Time', 'Actions']}
-          onDelete={apiDeleteMeal}
         />
       );
     }

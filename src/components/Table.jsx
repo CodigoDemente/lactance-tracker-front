@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../styles/colors';
 
 
-const Table = ({body, headers, onDelete}) => {
+const Table = ({body, headers}) => {
   return (
     <TableContainer>
           {body && <StyledTable>
