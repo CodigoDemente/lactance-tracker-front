@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
 
-const Input = ({ label, maxLength, minLength, name, required, placeholder, size }) => {
+const Input = ({ label, maxLength, minLength, name, required, placeholder, size, ...props }) => {
     return (
         <StyledInput>
             <StyledLabel>{label}</StyledLabel>
@@ -12,7 +12,9 @@ const Input = ({ label, maxLength, minLength, name, required, placeholder, size 
                 maxLength={maxLength}
                 $size={size}
                 minLength={minLength}
-                placeholder={placeholder} />
+                placeholder={placeholder}
+                {...props}
+            />
         </StyledInput>
     );
 }

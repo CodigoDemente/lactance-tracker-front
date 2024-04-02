@@ -6,7 +6,6 @@ import Submit from '../components/Submit';
 import Paragraph from '../components/Paragraph';
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
-import Cookies from 'js-cookie';
 import { parseToken } from '../utils/parserToken';
 import { get_token } from '../api/childs';
 
@@ -23,6 +22,7 @@ function Login() {
         if (response) {
           const token = parseToken(response)
             setUser(token.sub);
+            setErrorAPICall(false);
             navigate('/')
         }
         else {
@@ -58,6 +58,7 @@ function Login() {
             <Input
             name="password"
             label="Password"
+            type="password"
             maxLength="50"
             minLength="5"
             required

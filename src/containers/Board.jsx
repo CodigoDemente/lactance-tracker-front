@@ -77,16 +77,16 @@ const Board = ({
     }
   }
 
+  const tabs = childs.map((child, i) => ({ name: child.name, id: child.id, value: i }));
   
   return (
     <>
-      <FlexContainer>
         <Tabs
-          tabs={childs}
+          tabs={tabs}
           onChangeTab={onChangeTab}
-          activeTab={tab}
+          size="fixed"
+          isActive={tab}
         />
-      </FlexContainer>
       <CheckContainer>{submittedForm && <img src={check} alt="check" />}</CheckContainer>
       {childs[tab] && (
         <FlexContainer $gap={'40px'} $col>

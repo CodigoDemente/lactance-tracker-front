@@ -1,24 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { colors } from '../styles/colors';
-import Paragraph from '../components/Paragraph';
-import { device } from '../styles/breakpoints';
 import { useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import styled from 'styled-components';
 import { delete_meal, get_meals } from '../api/childs';
 import Error from '../containers/Error';
 import { getLocalIsoString } from '../utils/parserTime';
-
-
-const List = () => {
-
-  const { childId } = useParams();
-  const [data, setData] = useState();
-  const [loading, setLoading] = useState(false);
-  const [errorAPICall, setErrorAPICall] = useState(false);
+import Tabs from '../components/Tabs';
+import Table from '../components/Table';
 
 const handleSort = (data) => {
-  const sortedData = data.sort((a, b) => {
+    const sortedData = data.sort((a, b) => {
     const timeA = getLocalIsoString(a.date);
     const timeB = getLocalIsoString(b.date);
     return timeB - timeA;
@@ -37,11 +27,23 @@ const handleSort = (data) => {
   return groupedData;
 };
 
+const List = () => {
+  const { childId } = useParams();
+  const [data, setData] = useState();
+  const [tab, setTab] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorAPICall, setErrorAPICall] = useState(false);
+
+  const onChangeTab = (e) => {
+    setTab(e.target.value);
+  }
+
   const apiGetMeals = useCallback(async () => {
     setLoading(true)
     const response = await get_meals(childId);
     if (response) {
       setData(handleSort(response));
+      setTab(Object.keys(handleSort(response))[0]);
       setErrorAPICall(false);
       setLoading(false)
     }
@@ -68,41 +70,39 @@ const handleSort = (data) => {
   useEffect(() => {
       apiGetMeals();
   }, []);
-    
-const renderTable = () => {
-    if (data) {
-      return (
-        <div>
-          {Object.entries(data).map(([key, value]) => ( 
-            <div>
-            <p>{new Date(key).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}</p>
-              <Table>
-          <thead>
-            <tr>
-              <TableHeader>Meal</TableHeader>
-              <TableHeader>Time</TableHeader>
-              <TableHeader>Actions</TableHeader>
-            </tr>
-          </thead>
-          <tbody>
-            {value.map((item, i) => 
-              <tr key={i}>
-                <TableCell>{item.type}</TableCell>
-                <TableCell>{item.date}</TableCell>
-                <TableCell>
-                  <button onClick={()=> apiDeleteMeal(item.id)}>
-                    delete
-                  </button>
-                </TableCell>
-              </tr>)
-            }
 
-          </tbody>
-              </Table>
-            </div>
-          ))
-          }
-          </div>
+  const renderTabs = () => {
+    if (data) {
+       const tabs = Object.keys(data).map((key, i) => ({
+          name: new Date(key).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
+          id: i,
+          value: key
+       }));
+      return (
+        <Tabs
+          tabs={tabs}
+          onChangeTab={onChangeTab}
+          isActive={tab}
+        />
+      );
+    }
+  };
+
+    
+  const renderTable = () => {
+    if (data && data[tab]) { 
+      const body = data[tab].map((item) => {
+        return {
+          meal: item.type,
+          time: item.date,
+          action: <button onClick={() => apiDeleteMeal(item.id)}>delete</button>,
+        }
+      })
+      return (
+        <Table
+          body={body}
+          headers={['Meals', 'Time', 'Actions']}
+        />
       );
     }
   };
@@ -120,39 +120,19 @@ const renderTable = () => {
   }
  
   return (
-    <TableContainer>
+    <PageContainer>
+      {renderTabs()}
       {renderTable()}
-    </TableContainer>
+    </PageContainer>
   )
 }
-const TableContainer = styled.div`
+const PageContainer = styled.div`
   padding-top: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 40px;
   justify-content: center;
-  width: 100%;
-  
+  width: 100%; 
 `
-const Table = styled.table`
-  width: 60%;
-`
-
-const TableHeader = styled.th`
-  font-size: 22px;
-  padding: 8px;
-  border: 1px solid ${colors.lightgrey};
-  border-radius: 4px;
-  background-color: ${colors.primary};
-  color: ${colors.white};
-`
-
-const TableCell = styled.td`
-  text-align: center;
-  padding: 4px;
-  font-size: 16px;
-  border: 1px solid ${colors.lightgrey};
-  border-radius: 4px;
-`
-
 export default List;

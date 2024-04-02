@@ -12,7 +12,7 @@ const refreshPage = () => {
   }
   return (
       <PageContainer>
-          <StyledImage src={fantom} alt="fantom" />
+        <StyledImage src={fantom} alt="fantom" />
         <Paragraph size='l' color='red'>...Oh no !...</Paragraph>
         <Paragraph size='m' color='red'>{errorMessage}</Paragraph>
         <RefreshButton onClick={refreshPage}>🌀 Refresh 🌀</RefreshButton>

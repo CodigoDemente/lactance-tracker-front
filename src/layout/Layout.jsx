@@ -29,7 +29,13 @@ const StyledLogo = styled.img`
 `;
 
 const StyledContainer = styled.div`
- padding-inline: 20%;
+    padding-inline: 5%;
+    @media ${device.md} {
+        padding-inline: 10%;
+    }
+     @media ${device.lg} {
+         padding-inline: 20%;
+    }
 `
 
 const Layout = () => {
