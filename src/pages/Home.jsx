@@ -32,7 +32,7 @@ const Home = () => {
       setSubmittedForm(true);
       setErrorAPICall(false)
       setLoading(false)
-      setTimeout(() => {setSubmittedForm(false)}, 800)
+      setTimeout(() => {setSubmittedForm(false)}, 1000)
     }
     else {
       setErrorAPICall('Something went wrong when registering lactance!')
