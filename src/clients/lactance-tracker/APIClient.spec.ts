@@ -2,8 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi, type Mock } 
 import { faker } from '@faker-js/faker';
 import { APIClient } from './APIClient';
 import { JWTNotSuppliedError } from './errors/JWTNotSuppliedError';
-
-global.fetch = vi.fn();
+import { UnauthorizedError } from './errors/UnauthorizedError';
 
 describe('APIClient', () => {
 	const globalFetch = global.fetch;
@@ -59,6 +58,14 @@ describe('APIClient', () => {
 		expect(client.getJwt()).to.equal('token');
 	});
 
+	it('should set jwt when calling setJwt', () => {
+		const client = APIClient.create(baseUrl, 'token');
+
+		client.setJwt('new-token');
+
+		expect(client.getJwt()).to.equal('new-token');
+	});
+
 	it('should include jwt in the request headers', async () => {
 		const client = APIClient.create(baseUrl, 'token');
 
@@ -91,10 +98,6 @@ describe('APIClient', () => {
 
 	it('should throw JWTNotSet if no jwt is supplied and request is not anonymous', async () => {
 		const client = APIClient.create(faker.internet.url());
-
-		(fetch as Mock).mockResolvedValueOnce({
-			json: async () => 'GET base-url/path'
-		});
 
 		await expect(client.request('/path', { method: 'GET' })).rejects.toThrowError(
 			JWTNotSuppliedError
@@ -220,5 +223,43 @@ describe('APIClient', () => {
 		const request = (fetch as Mock).mock.calls[0][0] as Request;
 
 		expect(await request.json()).to.deep.equal({ key: 'value' });
+	});
+
+	it('should throw UnauthorizedError when server returns 401 error code', async () => {
+		const client = APIClient.create(baseUrl, jwt);
+
+		(fetch as Mock).mockResolvedValueOnce({
+			status: 401
+		});
+
+		await expect(client.request('/path', { method: 'GET' })).rejects.toThrowError(
+			UnauthorizedError
+		);
+	});
+
+	it('should return the status code when calling request', async () => {
+		const client = APIClient.create(baseUrl, jwt);
+
+		(fetch as Mock).mockResolvedValueOnce({
+			status: 200,
+			json: async () => 'response body'
+		});
+
+		const response = await client.request('/path', { method: 'GET' });
+
+		expect(response.status).to.equal(200);
+	});
+
+	it('should return the response body when calling request', async () => {
+		const client = APIClient.create(baseUrl, jwt);
+
+		(fetch as Mock).mockResolvedValueOnce({
+			status: 200,
+			json: async () => 'response body'
+		});
+
+		const response = await client.request('/path', { method: 'GET' });
+
+		expect(response.data).to.equal('response body');
 	});
 });

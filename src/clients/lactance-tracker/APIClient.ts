@@ -1,12 +1,14 @@
+import { UnauthorizedError } from './errors/UnauthorizedError';
 import { JWTNotSuppliedError } from './errors/JWTNotSuppliedError';
 import type { RequestOptions } from './types/RequestOptions';
+import type { ResponseData } from './types/ResponseData';
 
 let singleton: APIClient | null = null;
 
 export class APIClient {
 	private constructor(
 		private readonly baseUrl: string,
-		private readonly jwt?: string
+		private jwt?: string
 	) {}
 
 	public getBaseUrl(): string {
@@ -17,7 +19,15 @@ export class APIClient {
 		return this.jwt;
 	}
 
-	public async request(path: string, options: RequestOptions, anonymous = false): Promise<unknown> {
+	public setJwt(jwt: string): void {
+		this.jwt = jwt;
+	}
+
+	public async request(
+		path: string,
+		options: RequestOptions,
+		anonymous = false
+	): Promise<ResponseData> {
 		const request = new Request(`${this.baseUrl}${path}`, {
 			body: options.body ? JSON.stringify(options.body) : undefined,
 			method: options.method,
@@ -35,7 +45,18 @@ export class APIClient {
 
 		const response = await fetch(request);
 
-		return response.json();
+		this.handleError(response);
+
+		return {
+			status: response.status,
+			data: await response.json()
+		};
+	}
+
+	private handleError(response: Response): void {
+		if (response.status === 401) {
+			throw new UnauthorizedError();
+		}
 	}
 
 	public static create(baseUrl: string, jwt?: string): APIClient {
