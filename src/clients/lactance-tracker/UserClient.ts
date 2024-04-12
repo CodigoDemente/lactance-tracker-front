@@ -1,3 +1,4 @@
+import { jwtDecode } from 'jwt-decode';
 import type { APIClient } from './APIClient';
 import { BadRquestError } from './errors/BadRequestError';
 import { UserAlreadyExistsError } from './errors/user/UserAlreadyExistsError';
@@ -18,7 +19,14 @@ enum ErrorCodes {
 export class UserClient {
 	constructor(private readonly apiClient: APIClient) {}
 
-	public async authenticate(username: string, password: string): Promise<void> {
+	public async authenticate(
+		username: string,
+		password: string
+	): Promise<{
+		userId: string;
+		username: string;
+		email: string;
+	}> {
 		const response = await this.apiClient.request(
 			RequestPaths.LOGIN,
 			{
@@ -34,6 +42,18 @@ export class UserClient {
 		const { token } = response.data;
 
 		this.apiClient.setJwt(token as string);
+
+		const jwtUser = jwtDecode<{
+			sub: string;
+			username: string;
+			email: string;
+		}>(token as string);
+
+		return {
+			userId: jwtUser.sub,
+			username: jwtUser.username,
+			email: jwtUser.email
+		};
 	}
 
 	public async usernameExists(username: string): Promise<boolean> {

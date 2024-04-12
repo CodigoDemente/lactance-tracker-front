@@ -23,11 +23,11 @@ export class APIClient {
 		this.jwt = jwt;
 	}
 
-	public async request(
+	public async request<T = Record<string, unknown>>(
 		path: string,
 		options: RequestOptions,
 		anonymous = false
-	): Promise<ResponseData> {
+	): Promise<ResponseData<T>> {
 		const request = new Request(`${this.baseUrl}${path}`, {
 			body: options.body ? JSON.stringify(options.body) : undefined,
 			method: options.method,

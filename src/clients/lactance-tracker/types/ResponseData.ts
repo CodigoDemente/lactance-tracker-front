@@ -1,4 +1,14 @@
-export type ResponseData = {
+export type ResponseData<T> = {
 	status: number;
-	data: Record<string, unknown>;
+	data: T;
+};
+
+export type Pagination<T> = {
+	page: number;
+	total: number;
+	items: T[];
+};
+
+export type ResponseWithId = {
+	id: string;
 };

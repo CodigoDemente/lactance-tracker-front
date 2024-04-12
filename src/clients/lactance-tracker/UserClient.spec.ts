@@ -15,6 +15,8 @@ describe('UserClient', () => {
 	beforeAll(() => {
 		global.fetch = vi.fn();
 
+		vi.mock('jwt-decode');
+
 		apiClient = APIClient.create(faker.internet.url());
 
 		userClient = new UserClient(apiClient);
@@ -58,6 +60,31 @@ describe('UserClient', () => {
 			});
 
 			await expect(userClient.authenticate(user, password)).rejects.toThrow(UnauthorizedError);
+		});
+
+		it('should return the user data decoded from the token when authenticating', async () => {
+			// Fake token
+			const token =
+				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBlcGUiLCJzdWIiOiJmYTBiODhiMi0wZTMwLTQ3ZTktODc0OC01ZDVjYzQ2NzQ4ZmIiLCJlbWFpbCI6InBlcGVAcGVwZS5wZSIsImlhdCI6MTcxMjkwNjc1NiwiZXhwIjoxNzIwNjgyNzU2fQ.JnetmuBOQG0GxVjkNMTQgrgWs1dH_YMFSwy7H3PueVQ';
+
+			const user = faker.internet.userName();
+			const password = faker.internet.password();
+
+			(fetch as Mock).mockResolvedValueOnce({
+				json: async () => ({
+					token
+				})
+			});
+
+			const result = await userClient.authenticate(user, password);
+
+			expect(result).toEqual(
+				expect.objectContaining({
+					userId: expect.any(String),
+					username: expect.any(String),
+					email: expect.any(String)
+				})
+			);
 		});
 	});
 
