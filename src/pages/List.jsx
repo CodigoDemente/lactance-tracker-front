@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { delete_meal, get_meals } from '../api/childs';
+import { delete_meal, edit_meal, get_meals } from '../api/childs';
 import Error from '../containers/Error';
 import { getLocalIsoString } from '../utils/parserTime';
 import Tabs from '../components/Tabs';
 import Table from '../components/Table';
+import Loader from '../components/Loader';
 
 const handleSort = (data) => {
     const sortedData = data.sort((a, b) => {
@@ -33,6 +34,7 @@ const List = () => {
   const [tab, setTab] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorAPICall, setErrorAPICall] = useState(false);
+  const [editSize, setEditSize] = useState(false);
 
   const onChangeTab = (e) => {
     setTab(e.target.value);
@@ -65,6 +67,20 @@ const List = () => {
       setErrorAPICall('Something went wrong when getting your data!')
       setLoading(false)
     }
+   }, [childId]);
+  
+  const apiEditMeal = useCallback(async (id, params) => {
+    setLoading(true)
+    const response = await edit_meal(childId, id, params);
+    if (response) {
+      apiGetMeals();
+      setErrorAPICall(false);
+      setLoading(false)
+    }
+    else {
+      setErrorAPICall('Something went wrong when editing your data!')
+      setLoading(false)
+    }
   }, [childId]);
 
   useEffect(() => {
@@ -73,42 +89,58 @@ const List = () => {
 
   const renderTabs = () => {
     if (data) {
-       const tabs = Object.keys(data).map((key, i) => ({
-          name: new Date(key).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
-          id: i,
-          value: key
-       }));
+      
+      const tabs = Object.keys(data).map((key, i) => ({
+        name: new Date(key).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
+        id: i,
+        value: key
+      }));
+      
       return (
+        <>
         <Tabs
-          tabs={tabs}
-          onChangeTab={onChangeTab}
-          isActive={tab}
-        />
+            tabs={tabs}
+            onChangeTab={onChangeTab}
+            isActive={tab}
+            toShow={2}
+          />
+        </>
       );
     }
   };
 
-    
+  
+
   const renderTable = () => {
     if (data && data[tab]) { 
       const body = data[tab].map((item) => {
         return {
           meal: item.type,
           time: item.date,
-          action: <button onClick={() => apiDeleteMeal(item.id)}>delete</button>,
+          size: <> {editSize ?
+            <>
+              <button onClick={() => apiEditMeal(item.id, {size: 'S'}) && setEditSize(false)}>S</button>
+              <button onClick={() => apiEditMeal(item.id, {size: 'M'}) && setEditSize(false)}>M</button>
+              <button onClick={() => apiEditMeal(item.id, {size: 'L'}) && setEditSize(false)}>L</button>
+            </>
+            : <button onClick={() => setEditSize(true)}>{item.size || 'edit'}</button>}
+          </>,
+          action: <FlexContainer $gap="12px">
+            <button onClick={() => apiDeleteMeal(item.id)}>delete</button>
+          </FlexContainer>,
         }
       })
       return (
         <Table
           body={body}
-          headers={['Meals', 'Time', 'Actions']}
+          headers={['Meals', 'Time', 'Size', 'Actions']}
         />
       );
     }
   };
    
   if (loading) {
-    return <div>Loading...</div>
+    return <Loader />
   }
 
   if (errorAPICall) {
@@ -134,5 +166,14 @@ const PageContainer = styled.div`
   gap: 40px;
   justify-content: center;
   width: 100%; 
+`
+
+const FlexContainer = styled.div`
+    display: flex;
+    flex-direction: ${props => props.$col ? 'column' : 'row'};
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: ${props => props.$gap || '0px'};
 `
 export default List;

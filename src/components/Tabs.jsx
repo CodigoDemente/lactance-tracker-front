@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
 
 
-const Tabs = ({ tabs, size, isActive, onChangeTab }) => {
+const Tabs = ({ tabs, size, isActive, onChangeTab, toShow }) => {
+    const initialTabs = toShow ? tabs.slice(0, toShow) : tabs;
+    const [showTabs, setShowTabs] = useState(initialTabs);
     return (
         <FlexContainer $gap="4px">
-            {tabs.map((tab) => (
+            {showTabs.map((tab) => (
                 <Tab
                     key={tab.id}
                     value={tab.value}
@@ -15,6 +17,15 @@ const Tabs = ({ tabs, size, isActive, onChangeTab }) => {
                     $active={tab.value === isActive}
                 >{tab.name}</Tab>
             ))}
+            {toShow && tabs.length > toShow &&
+                <Tab
+                    key="more"
+                    value="more"
+                    onClick={() => setShowTabs(showTabs.length !== tabs.length ? tabs : tabs.slice(0, toShow))}
+                >
+                    {showTabs.length !== tabs.length ? '...' : ' - '}
+                </Tab>
+            }
         </FlexContainer>
     );
 }
