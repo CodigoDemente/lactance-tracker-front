@@ -7,6 +7,7 @@ import { get_childs, post_meal } from '../api/childs';
 import { parseToken } from '../utils/parserToken';
 import Board from '../containers/Board';
 import Error from '../containers/Error';
+import Loader from '../components/Loader';
 
 const Home = () => {
 
@@ -71,7 +72,7 @@ const Home = () => {
   }, [token, setUser, userId]);
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loader />
   }
 
   if (errorAPICall) {
