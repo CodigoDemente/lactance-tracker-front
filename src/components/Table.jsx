@@ -37,7 +37,7 @@ const TableContainer = styled.div`
   
 `
 const StyledTable = styled.table`
-  width: 60%;
+  width: 100%;
 `
 
 const TableHeader = styled.th`
@@ -55,6 +55,7 @@ const TableCell = styled.td`
   font-size: 16px;
   border: 1px solid ${colors.lightgrey};
   border-radius: 4px;
+  height: 40px;
 `
 
 export default Table;
