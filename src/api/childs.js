@@ -77,13 +77,16 @@ export const post_meal = async (childId, type, date) => {
 }
 
 
-export const edit_meal = async (childId, type, mealId, date) => {
+export const edit_meal = async (childId, mealId, params) => {
+  const { type, date, size } = params;
+  
     const settings = {
       method: 'PATCH',
       ...headers,
       body: JSON.stringify({
-          type: type,
-          date: date
+        type,
+        date,
+        size
       })
     };
     try {
