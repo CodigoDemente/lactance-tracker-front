@@ -33,12 +33,22 @@ const inputs = [
   }
 ]
 
-const radio = [
+const radioType = [
   {
     name: 'breast'
   },
   {
     name: 'bottle'
+  }
+]
+
+const radioDate = [
+  {
+    name: 'today',
+    checked: true
+  },
+  {
+    name: 'yesterday'
   }
 ]
 
@@ -64,16 +74,16 @@ const Board = ({
   const registerManually = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const { hours, minutes, radio } = Object.fromEntries(formData.entries());
+    const { hours, minutes, type, day } = Object.fromEntries(formData.entries());
     
     if (hours.length !== 2 || minutes.length !== 2 || isNaN(hours) || isNaN(minutes) || hours >= 24 || minutes >= 60) {
       setErrorForm('Time format should be 2 digits and valid time')
     }
-    else if (!radio) {
+    else if (!type) {
       setErrorForm('You should select a type of meal')
     } else {
-      const isoString = parseTimeToISO(hours, minutes)
-      apiPostMeal(radio, tab, isoString);
+      const isoString = parseTimeToISO(hours, minutes, day);
+      apiPostMeal(type, tab, isoString);
     }
   }
 
@@ -89,7 +99,7 @@ const Board = ({
         />
       <CheckContainer>{submittedForm && <img src={check} alt="check" />}</CheckContainer>
       {childs[tab] && (
-        <FlexContainer $gap={'40px'} $col>
+        <FlexContainer $gap={'20px'} $col>
           <StyledLink to={`${userId}/child/${childs[tab].id}`}>
             {childs[tab].name}
           </StyledLink>
@@ -110,7 +120,16 @@ const Board = ({
               Register <FaEdit size={20}/>
             </EditButton>
             {edit && <StyledForm onSubmit={registerManually}>
-               <FlexContainer  $gap={'8px'}>
+               {errorForm && <Paragraph size='s' color='red'>{errorForm}</Paragraph>}
+              <FlexContainer $gap={'8px'}>
+               {radioDate.map((radio, i) => (
+                <div key={i}>
+                   <input id={radio.name} checked={radio.checked}  value={radio.name} name="day" type="radio"/>
+                    <label htmlFor={radio.name} class="radio-label">{radio.name}</label>
+                  </div>
+               ))}
+                </FlexContainer>
+              <FlexContainer $gap={'8px'}>
               {inputs.map((input, i) => (
                   <Input
                       label=""
@@ -125,9 +144,9 @@ const Board = ({
               ))}
               </FlexContainer>
               <FlexContainer $gap={'8px'}>
-              {radio.map((radio, i) => (
+              {radioType.map((radio, i) => (
                 <div key={i}>
-                  <input id={radio.name} value={radio.name} name="radio" type="radio"/>
+                  <input id={radio.name} value={radio.name} name="type" type="radio"/>
                     <label htmlFor={radio.name} class="radio-label">{radio.name}</label>
                   </div>
               ))}
@@ -135,7 +154,6 @@ const Board = ({
                 <IoSend size={15} />
               </SendButton>
               </FlexContainer>
-              {errorForm && <Paragraph size='s' color='red'>{errorForm}</Paragraph>}
             </StyledForm>
             }
           </FlexContainer>
@@ -205,6 +223,12 @@ const SendButton = styled.button`
     align-items: center;
     justify-content: center;
     gap: 20px;
+    padding-bottom: 20px;
+
+    & .radio-label {
+      font-size: 12px;
+      color: ${colors.darkgrey};
+    }
 `;
 
 
